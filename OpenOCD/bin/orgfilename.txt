@@ -1,0 +1,8 @@
+ Verzeichnis von C:\WinARM\examples\stm32f4_blink_switch_systick
+
+21.04.2012  11:29    <DIR>          .
+21.04.2012  11:29    <DIR>          ..
+29.02.2012  17:06         1.432.064 openocd-0.6.0-dev-120229143915.exe
+21.04.2012  11:29                 0 orgfilename.txt
+               2 Datei(en)      1.432.064 Bytes
+               2 Verzeichnis(se), 53.745.819.648 Bytes frei

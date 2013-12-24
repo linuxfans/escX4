@@ -1,0 +1,692 @@
+   1              		.syntax unified
+   2              		.cpu cortex-m4
+   3              		.eabi_attribute 27, 3
+   4              		.fpu fpv4-sp-d16
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 4
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.thumb
+  15              		.file	"usbd_flash_if.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.FLASH_If_Read,"ax",%progbits
+  20              		.align	1
+  21              		.global	FLASH_If_Read
+  22              		.thumb
+  23              		.thumb_func
+  25              	FLASH_If_Read:
+  26              	.LFB114:
+  27              		.file 1 "Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c"
+   1:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /**
+   2:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   ******************************************************************************
+   3:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @file    usbd_flash_if.c
+   4:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @author  MCD Application Team
+   5:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @version V1.1.0
+   6:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @date    19-March-2012
+   7:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @brief   Specific media access Layer for internal flash.
+   8:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   ******************************************************************************
+   9:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @attention
+  10:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *
+  11:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * <h2><center>&copy; COPYRIGHT 2012 STMicroelectronics</center></h2>
+  12:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *
+  13:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
+  14:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * You may not use this file except in compliance with the License.
+  15:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * You may obtain a copy of the License at:
+  16:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *
+  17:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *        http://www.st.com/software_license_agreement_liberty_v2
+  18:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *
+  19:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * Unless required by applicable law or agreed to in writing, software 
+  20:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * distributed under the License is distributed on an "AS IS" BASIS, 
+  21:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  22:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * See the License for the specific language governing permissions and
+  23:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * limitations under the License.
+  24:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *
+  25:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   ******************************************************************************
+  26:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   */ 
+  27:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  28:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Includes ------------------------------------------------------------------*/
+  29:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #include "usbd_flash_if.h"
+  30:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #include "usbd_dfu_mal.h"
+  31:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  32:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Private typedef -----------------------------------------------------------*/
+  33:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Private define ------------------------------------------------------------*/
+  34:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Private macro -------------------------------------------------------------*/
+  35:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  36:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Private function prototypes -----------------------------------------------*/
+  37:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_Init(void);
+  38:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_Erase (uint32_t Add);
+  39:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_Write (uint32_t Add, uint32_t Len);
+  40:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint8_t *FLASH_If_Read  (uint32_t Add, uint32_t Len);
+  41:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_DeInit(void);
+  42:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_CheckAdd(uint32_t Add);
+  43:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  44:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  45:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Private variables ---------------------------------------------------------*/
+  46:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** DFU_MAL_Prop_TypeDef DFU_Flash_cb =
+  47:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+  48:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_IF_STRING,
+  49:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_If_Init,
+  50:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_If_DeInit,
+  51:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_If_Erase,
+  52:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_If_Write,
+  53:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_If_Read,
+  54:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_If_CheckAdd,
+  55:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     50, /* Erase Time in ms */
+  56:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     50  /* Programming Time in ms */
+  57:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   };
+  58:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  59:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /* Private functions ---------------------------------------------------------*/
+  60:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  61:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /**
+  62:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @brief  FLASH_If_Init
+  63:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *         Memory initialization routine.
+  64:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  None
+  65:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @retval MAL_OK if operation is successeful, MAL_FAIL else.
+  66:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   */
+  67:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_Init(void)
+  68:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  69:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   /* Unlock the internal flash */
+  70:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   FLASH_Unlock();
+  71:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   
+  72:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return MAL_OK;
+  73:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+  74:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  75:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /**
+  76:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @brief  FLASH_If_DeInit
+  77:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *         Memory deinitialization routine.
+  78:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  None
+  79:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @retval MAL_OK if operation is successeful, MAL_FAIL else.
+  80:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   */
+  81:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_DeInit(void)
+  82:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  83:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   /* Lock the internal flash */
+  84:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   FLASH_Lock();
+  85:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   
+  86:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return MAL_OK;
+  87:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+  88:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+  89:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /*******************************************************************************
+  90:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** * Function Name  : FLASH_If_Erase
+  91:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** * Description    : Erase sector
+  92:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** * Input          : None
+  93:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** * Output         : None
+  94:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** * Return         : None
+  95:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** *******************************************************************************/
+  96:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_Erase(uint32_t Add)
+  97:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  98:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #if defined (STM32F2XX) || defined (STM32F4XX)
+  99:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   /* Check which sector has to be erased */
+ 100:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if (Add < 0x08004000)
+ 101:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 102:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_0, VoltageRange_3);
+ 103:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 104:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08008000)
+ 105:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 106:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3);
+ 107:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 108:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x0800C000)
+ 109:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 110:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_2, VoltageRange_3);
+ 111:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 112:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08010000)
+ 113:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 114:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_3, VoltageRange_3);
+ 115:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 116:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08020000)
+ 117:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 118:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_4, VoltageRange_3);
+ 119:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 120:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08040000)
+ 121:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 122:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_5, VoltageRange_3);
+ 123:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 124:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08060000)
+ 125:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 126:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_6, VoltageRange_3);
+ 127:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 128:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08080000)
+ 129:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 130:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_7, VoltageRange_3);
+ 131:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 132:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x080A0000)
+ 133:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 134:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_8, VoltageRange_3);
+ 135:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 136:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x080C0000)
+ 137:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 138:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_9, VoltageRange_3);
+ 139:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 140:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x080E0000)
+ 141:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 142:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_10, VoltageRange_3);
+ 143:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 144:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08100000)
+ 145:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 146:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_11, VoltageRange_3);
+ 147:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 148:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else
+ 149:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 150:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     return MAL_FAIL;    
+ 151:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 152:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #elif defined(STM32F10X_CL)
+ 153:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   /* Call the standard Flash erase function */
+ 154:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   FLASH_ErasePage(Add);  
+ 155:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #endif /* STM32F2XX */
+ 156:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   
+ 157:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return MAL_OK;
+ 158:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+ 159:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+ 160:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /**
+ 161:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @brief  FLASH_If_Write
+ 162:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *         Memory write routine.
+ 163:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  Add: Address to be written to.
+ 164:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  Len: Number of data to be written (in bytes).
+ 165:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @retval MAL_OK if operation is successeful, MAL_FAIL else.
+ 166:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   */
+ 167:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_Write(uint32_t Add, uint32_t Len)
+ 168:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+ 169:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   uint32_t idx = 0;
+ 170:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   
+ 171:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if  (Len & 0x3) /* Not an aligned data */
+ 172:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 173:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     for (idx = Len; idx < ((Len & 0xFFFC) + 4); idx++)
+ 174:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     {
+ 175:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****       MAL_Buffer[idx] = 0xFF;
+ 176:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     }
+ 177:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 178:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   
+ 179:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   /* Data received are Word multiple */
+ 180:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   for (idx = 0; idx <  Len; idx = idx + 4)
+ 181:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 182:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_ProgramWord(Add, *(uint32_t *)(MAL_Buffer + idx));
+ 183:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     Add += 4;
+ 184:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 185:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return MAL_OK;
+ 186:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+ 187:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+ 188:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /**
+ 189:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @brief  FLASH_If_Read
+ 190:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *         Memory read routine.
+ 191:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  Add: Address to be read from.
+ 192:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  Len: Number of data to be read (in bytes).
+ 193:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @retval Pointer to the phyisical address where data should be read.
+ 194:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   */
+ 195:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint8_t *FLASH_If_Read (uint32_t Add, uint32_t Len)
+ 196:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  28              		.loc 1 196 0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  33              	.LVL0:
+ 197:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #ifdef USB_OTG_HS_INTERNAL_DMA_ENABLED
+ 198:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   uint32_t idx = 0;
+ 199:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   for (idx = 0; idx < Len; idx += 4)
+ 200:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 201:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     *(uint32_t*)(MAL_Buffer + idx) = *(uint32_t *)(Add + idx);
+ 202:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 203:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return (uint8_t*)(MAL_Buffer);
+ 204:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #else  
+ 205:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return  (uint8_t *)(Add);
+ 206:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
+ 207:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+  34              		.loc 1 207 0
+  35 0000 7047     		bx	lr
+  36              		.cfi_endproc
+  37              	.LFE114:
+  39              		.section	.text.FLASH_If_CheckAdd,"ax",%progbits
+  40              		.align	1
+  41              		.global	FLASH_If_CheckAdd
+  42              		.thumb
+  43              		.thumb_func
+  45              	FLASH_If_CheckAdd:
+  46              	.LFB115:
+ 208:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** 
+ 209:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** /**
+ 210:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @brief  FLASH_If_CheckAdd
+ 211:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   *         Check if the address is an allowed address for this memory.
+ 212:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  Add: Address to be checked.
+ 213:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @param  Len: Number of data to be read (in bytes).
+ 214:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   * @retval MAL_OK if the address is allowed, MAL_FAIL else.
+ 215:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   */
+ 216:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** uint16_t FLASH_If_CheckAdd(uint32_t Add)
+ 217:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  47              		.loc 1 217 0
+  48              		.cfi_startproc
+  49              		@ args = 0, pretend = 0, frame = 0
+  50              		@ frame_needed = 0, uses_anonymous_args = 0
+  51              		@ link register save eliminated.
+  52              	.LVL1:
+ 218:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if ((Add >= FLASH_START_ADD) && (Add < FLASH_END_ADD))
+  53              		.loc 1 218 0
+  54 0000 00F17840 		add	r0, r0, #-134217728
+  55              	.LVL2:
+ 217:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  56              		.loc 1 217 0
+  57 0004 B0F5801F 		cmp	r0, #1048576
+  58 0008 34BF     		ite	cc
+  59 000a 0020     		movcc	r0, #0
+  60              	.LVL3:
+  61 000c 0120     		movcs	r0, #1
+ 219:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 220:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     return MAL_OK;
+ 221:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 222:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else
+ 223:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   {
+ 224:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     return MAL_FAIL;
+ 225:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   }
+ 226:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+  62              		.loc 1 226 0
+  63 000e 7047     		bx	lr
+  64              		.cfi_endproc
+  65              	.LFE115:
+  67              		.section	.text.FLASH_If_Write,"ax",%progbits
+  68              		.align	1
+  69              		.global	FLASH_If_Write
+  70              		.thumb
+  71              		.thumb_func
+  73              	FLASH_If_Write:
+  74              	.LFB113:
+ 168:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  75              		.loc 1 168 0
+  76              		.cfi_startproc
+  77              		@ args = 0, pretend = 0, frame = 0
+  78              		@ frame_needed = 0, uses_anonymous_args = 0
+  79              	.LVL4:
+  80 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  81              	.LCFI0:
+  82              		.cfi_def_cfa_offset 24
+  83              		.cfi_offset 14, -4
+  84              		.cfi_offset 7, -8
+  85              		.cfi_offset 6, -12
+  86              		.cfi_offset 5, -16
+  87              		.cfi_offset 4, -20
+  88              		.cfi_offset 3, -24
+ 171:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if  (Len & 0x3) /* Not an aligned data */
+  89              		.loc 1 171 0
+  90 0002 8B07     		lsls	r3, r1, #30
+ 168:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+  91              		.loc 1 168 0
+  92 0004 0646     		mov	r6, r0
+  93 0006 0D46     		mov	r5, r1
+ 171:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if  (Len & 0x3) /* Not an aligned data */
+  94              		.loc 1 171 0
+  95 0008 07D0     		beq	.L4
+ 173:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     for (idx = Len; idx < ((Len & 0xFFFC) + 4); idx++)
+  96              		.loc 1 173 0 discriminator 1
+  97 000a 4FF6FC72 		movw	r2, #65532
+  98 000e 0A40     		ands	r2, r2, r1
+ 171:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if  (Len & 0x3) /* Not an aligned data */
+  99              		.loc 1 171 0 discriminator 1
+ 100 0010 0B46     		mov	r3, r1
+ 173:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     for (idx = Len; idx < ((Len & 0xFFFC) + 4); idx++)
+ 101              		.loc 1 173 0 discriminator 1
+ 102 0012 0432     		adds	r2, r2, #4
+ 175:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****       MAL_Buffer[idx] = 0xFF;
+ 103              		.loc 1 175 0 discriminator 1
+ 104 0014 0A48     		ldr	r0, .L9
+ 105              	.LVL5:
+ 106 0016 FF21     		movs	r1, #255
+ 107              	.LVL6:
+ 108 0018 04E0     		b	.L5
+ 109              	.LVL7:
+ 110              	.L4:
+ 171:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if  (Len & 0x3) /* Not an aligned data */
+ 111              		.loc 1 171 0 discriminator 1
+ 112 001a 0024     		movs	r4, #0
+ 182:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_ProgramWord(Add, *(uint32_t *)(MAL_Buffer + idx));
+ 113              		.loc 1 182 0 discriminator 1
+ 114 001c 084F     		ldr	r7, .L9
+ 115 001e 08E0     		b	.L6
+ 116              	.LVL8:
+ 117              	.L7:
+ 175:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****       MAL_Buffer[idx] = 0xFF;
+ 118              		.loc 1 175 0 discriminator 2
+ 119 0020 1954     		strb	r1, [r3, r0]
+ 173:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     for (idx = Len; idx < ((Len & 0xFFFC) + 4); idx++)
+ 120              		.loc 1 173 0 discriminator 2
+ 121 0022 0133     		adds	r3, r3, #1
+ 122              	.LVL9:
+ 123              	.L5:
+ 173:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     for (idx = Len; idx < ((Len & 0xFFFC) + 4); idx++)
+ 124              		.loc 1 173 0 is_stmt 0 discriminator 1
+ 125 0024 9342     		cmp	r3, r2
+ 126 0026 FBD3     		bcc	.L7
+ 127 0028 F7E7     		b	.L4
+ 128              	.LVL10:
+ 129              	.L8:
+ 182:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_ProgramWord(Add, *(uint32_t *)(MAL_Buffer + idx));
+ 130              		.loc 1 182 0 is_stmt 1 discriminator 2
+ 131 002a E159     		ldr	r1, [r4, r7]
+ 132 002c FFF7FEFF 		bl	FLASH_ProgramWord
+ 133              	.LVL11:
+ 180:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   for (idx = 0; idx <  Len; idx = idx + 4)
+ 134              		.loc 1 180 0 discriminator 2
+ 135 0030 0434     		adds	r4, r4, #4
+ 136              	.LVL12:
+ 137              	.L6:
+ 180:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   for (idx = 0; idx <  Len; idx = idx + 4)
+ 138              		.loc 1 180 0 is_stmt 0 discriminator 1
+ 139 0032 AC42     		cmp	r4, r5
+ 140 0034 04EB0600 		add	r0, r4, r6
+ 141              	.LVL13:
+ 142 0038 F7D3     		bcc	.L8
+ 186:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+ 143              		.loc 1 186 0 is_stmt 1
+ 144 003a 0020     		movs	r0, #0
+ 145              	.LVL14:
+ 146 003c F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 147              	.L10:
+ 148 003e 00BF     		.align	2
+ 149              	.L9:
+ 150 0040 00000000 		.word	MAL_Buffer
+ 151              		.cfi_endproc
+ 152              	.LFE113:
+ 154              		.section	.text.FLASH_If_DeInit,"ax",%progbits
+ 155              		.align	1
+ 156              		.global	FLASH_If_DeInit
+ 157              		.thumb
+ 158              		.thumb_func
+ 160              	FLASH_If_DeInit:
+ 161              	.LFB111:
+  82:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+ 162              		.loc 1 82 0
+ 163              		.cfi_startproc
+ 164              		@ args = 0, pretend = 0, frame = 0
+ 165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166 0000 08B5     		push	{r3, lr}
+ 167              	.LCFI1:
+ 168              		.cfi_def_cfa_offset 8
+ 169              		.cfi_offset 14, -4
+ 170              		.cfi_offset 3, -8
+  84:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   FLASH_Lock();
+ 171              		.loc 1 84 0
+ 172 0002 FFF7FEFF 		bl	FLASH_Lock
+  87:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+ 173              		.loc 1 87 0
+ 174 0006 0020     		movs	r0, #0
+ 175 0008 08BD     		pop	{r3, pc}
+ 176              		.cfi_endproc
+ 177              	.LFE111:
+ 179              		.section	.text.FLASH_If_Init,"ax",%progbits
+ 180              		.align	1
+ 181              		.global	FLASH_If_Init
+ 182              		.thumb
+ 183              		.thumb_func
+ 185              	FLASH_If_Init:
+ 186              	.LFB110:
+  68:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+ 187              		.loc 1 68 0
+ 188              		.cfi_startproc
+ 189              		@ args = 0, pretend = 0, frame = 0
+ 190              		@ frame_needed = 0, uses_anonymous_args = 0
+ 191 0000 08B5     		push	{r3, lr}
+ 192              	.LCFI2:
+ 193              		.cfi_def_cfa_offset 8
+ 194              		.cfi_offset 14, -4
+ 195              		.cfi_offset 3, -8
+  70:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   FLASH_Unlock();
+ 196              		.loc 1 70 0
+ 197 0002 FFF7FEFF 		bl	FLASH_Unlock
+  73:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+ 198              		.loc 1 73 0
+ 199 0006 0020     		movs	r0, #0
+ 200 0008 08BD     		pop	{r3, pc}
+ 201              		.cfi_endproc
+ 202              	.LFE110:
+ 204              		.section	.text.FLASH_If_Erase,"ax",%progbits
+ 205              		.align	1
+ 206              		.global	FLASH_If_Erase
+ 207              		.thumb
+ 208              		.thumb_func
+ 210              	FLASH_If_Erase:
+ 211              	.LFB112:
+  97:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** {
+ 212              		.loc 1 97 0
+ 213              		.cfi_startproc
+ 214              		@ args = 0, pretend = 0, frame = 0
+ 215              		@ frame_needed = 0, uses_anonymous_args = 0
+ 216              	.LVL15:
+ 217 0000 08B5     		push	{r3, lr}
+ 218              	.LCFI3:
+ 219              		.cfi_def_cfa_offset 8
+ 220              		.cfi_offset 14, -4
+ 221              		.cfi_offset 3, -8
+ 100:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   if (Add < 0x08004000)
+ 222              		.loc 1 100 0
+ 223 0002 214B     		ldr	r3, .L29
+ 224 0004 9842     		cmp	r0, r3
+ 225 0006 01D8     		bhi	.L14
+ 102:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_0, VoltageRange_3);
+ 226              		.loc 1 102 0
+ 227 0008 0020     		movs	r0, #0
+ 228              	.LVL16:
+ 229 000a 35E0     		b	.L28
+ 230              	.LVL17:
+ 231              	.L14:
+ 104:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08008000)
+ 232              		.loc 1 104 0
+ 233 000c 1F4B     		ldr	r3, .L29+4
+ 234 000e 9842     		cmp	r0, r3
+ 235 0010 01D8     		bhi	.L16
+ 106:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_1, VoltageRange_3);
+ 236              		.loc 1 106 0
+ 237 0012 0820     		movs	r0, #8
+ 238              	.LVL18:
+ 239 0014 30E0     		b	.L28
+ 240              	.LVL19:
+ 241              	.L16:
+ 108:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x0800C000)
+ 242              		.loc 1 108 0
+ 243 0016 1E4B     		ldr	r3, .L29+8
+ 244 0018 9842     		cmp	r0, r3
+ 245 001a 01D8     		bhi	.L17
+ 110:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_2, VoltageRange_3);
+ 246              		.loc 1 110 0
+ 247 001c 1020     		movs	r0, #16
+ 248              	.LVL20:
+ 249 001e 2BE0     		b	.L28
+ 250              	.LVL21:
+ 251              	.L17:
+ 112:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08010000)
+ 252              		.loc 1 112 0
+ 253 0020 1C4B     		ldr	r3, .L29+12
+ 254 0022 9842     		cmp	r0, r3
+ 255 0024 01D8     		bhi	.L18
+ 114:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_3, VoltageRange_3);
+ 256              		.loc 1 114 0
+ 257 0026 1820     		movs	r0, #24
+ 258              	.LVL22:
+ 259 0028 26E0     		b	.L28
+ 260              	.LVL23:
+ 261              	.L18:
+ 116:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08020000)
+ 262              		.loc 1 116 0
+ 263 002a 1B4B     		ldr	r3, .L29+16
+ 264 002c 9842     		cmp	r0, r3
+ 265 002e 01D8     		bhi	.L19
+ 118:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_4, VoltageRange_3);
+ 266              		.loc 1 118 0
+ 267 0030 2020     		movs	r0, #32
+ 268              	.LVL24:
+ 269 0032 21E0     		b	.L28
+ 270              	.LVL25:
+ 271              	.L19:
+ 272              	.LBB4:
+ 273              	.LBB5:
+ 120:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08040000)
+ 274              		.loc 1 120 0
+ 275 0034 194B     		ldr	r3, .L29+20
+ 276 0036 9842     		cmp	r0, r3
+ 277 0038 01D8     		bhi	.L20
+ 122:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_5, VoltageRange_3);
+ 278              		.loc 1 122 0
+ 279 003a 2820     		movs	r0, #40
+ 280              	.LVL26:
+ 281 003c 1CE0     		b	.L28
+ 282              	.LVL27:
+ 283              	.L20:
+ 124:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08060000)
+ 284              		.loc 1 124 0
+ 285 003e 184B     		ldr	r3, .L29+24
+ 286 0040 9842     		cmp	r0, r3
+ 287 0042 01D8     		bhi	.L22
+ 126:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_6, VoltageRange_3);
+ 288              		.loc 1 126 0
+ 289 0044 3020     		movs	r0, #48
+ 290              	.LVL28:
+ 291 0046 17E0     		b	.L28
+ 292              	.LVL29:
+ 293              	.L22:
+ 128:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08080000)
+ 294              		.loc 1 128 0
+ 295 0048 164B     		ldr	r3, .L29+28
+ 296 004a 9842     		cmp	r0, r3
+ 297 004c 01D8     		bhi	.L23
+ 130:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_7, VoltageRange_3);
+ 298              		.loc 1 130 0
+ 299 004e 3820     		movs	r0, #56
+ 300              	.LVL30:
+ 301 0050 12E0     		b	.L28
+ 302              	.LVL31:
+ 303              	.L23:
+ 132:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x080A0000)
+ 304              		.loc 1 132 0
+ 305 0052 154B     		ldr	r3, .L29+32
+ 306 0054 9842     		cmp	r0, r3
+ 307 0056 01D8     		bhi	.L24
+ 134:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_8, VoltageRange_3);
+ 308              		.loc 1 134 0
+ 309 0058 4020     		movs	r0, #64
+ 310              	.LVL32:
+ 311 005a 0DE0     		b	.L28
+ 312              	.LVL33:
+ 313              	.L24:
+ 136:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x080C0000)
+ 314              		.loc 1 136 0
+ 315 005c 134B     		ldr	r3, .L29+36
+ 316 005e 9842     		cmp	r0, r3
+ 317 0060 01D8     		bhi	.L25
+ 138:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_9, VoltageRange_3);
+ 318              		.loc 1 138 0
+ 319 0062 4820     		movs	r0, #72
+ 320              	.LVL34:
+ 321 0064 08E0     		b	.L28
+ 322              	.LVL35:
+ 323              	.L25:
+ 140:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x080E0000)
+ 324              		.loc 1 140 0
+ 325 0066 124B     		ldr	r3, .L29+40
+ 326 0068 9842     		cmp	r0, r3
+ 327 006a 01D8     		bhi	.L26
+ 142:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_10, VoltageRange_3);
+ 328              		.loc 1 142 0
+ 329 006c 5020     		movs	r0, #80
+ 330              	.LVL36:
+ 331 006e 03E0     		b	.L28
+ 332              	.LVL37:
+ 333              	.L26:
+ 144:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   else if (Add < 0x08100000)
+ 334              		.loc 1 144 0
+ 335 0070 B0F1016F 		cmp	r0, #135266304
+ 336 0074 05D2     		bcs	.L27
+ 146:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     FLASH_EraseSector(FLASH_Sector_11, VoltageRange_3);
+ 337              		.loc 1 146 0
+ 338 0076 5820     		movs	r0, #88
+ 339              	.LVL38:
+ 340              	.L28:
+ 341 0078 0221     		movs	r1, #2
+ 342 007a FFF7FEFF 		bl	FLASH_EraseSector
+ 157:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****   return MAL_OK;
+ 343              		.loc 1 157 0
+ 344 007e 0020     		movs	r0, #0
+ 345 0080 08BD     		pop	{r3, pc}
+ 346              	.LVL39:
+ 347              	.L27:
+ 150:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c ****     return MAL_FAIL;    
+ 348              		.loc 1 150 0
+ 349 0082 0120     		movs	r0, #1
+ 350              	.LVL40:
+ 351              	.LBE5:
+ 352              	.LBE4:
+ 158:Libraries/STM32_USB_Device_Library/Class/dfu/src/usbd_flash_if.c **** }
+ 353              		.loc 1 158 0
+ 354 0084 08BD     		pop	{r3, pc}
+ 355              	.L30:
+ 356 0086 00BF     		.align	2
+ 357              	.L29:
+ 358 0088 FF3F0008 		.word	134234111
+ 359 008c FF7F0008 		.word	134250495
+ 360 0090 FFBF0008 		.word	134266879
+ 361 0094 FFFF0008 		.word	134283263
+ 362 0098 FFFF0108 		.word	134348799
+ 363 009c FFFF0308 		.word	134479871
+ 364 00a0 FFFF0508 		.word	134610943
+ 365 00a4 FFFF0708 		.word	134742015
+ 366 00a8 FFFF0908 		.word	134873087
+ 367 00ac FFFF0B08 		.word	135004159
+ 368 00b0 FFFF0D08 		.word	135135231
+ 369              		.cfi_endproc
+ 370              	.LFE112:
+ 372              		.global	DFU_Flash_cb
+ 373              		.section	.data.DFU_Flash_cb,"aw",%progbits
+ 374              		.align	2
+ 377              	DFU_Flash_cb:
+ 378 0000 00000000 		.word	.LC0
+ 379 0004 00000000 		.word	FLASH_If_Init
+ 380 0008 00000000 		.word	FLASH_If_DeInit
+ 381 000c 00000000 		.word	FLASH_If_Erase
+ 382 0010 00000000 		.word	FLASH_If_Write
+ 383 0014 00000000 		.word	FLASH_If_Read
+ 384 0018 00000000 		.word	FLASH_If_CheckAdd
+ 385 001c 32000000 		.word	50
+ 386 0020 32000000 		.word	50
+ 387              		.section	.rodata.str1.1,"aMS",%progbits,1
+ 388              	.LC0:
+ 389 0000 40496E74 		.ascii	"@Internal Flash   /0x08000000/03*016Ka,01*016Kg,01*"
+ 389      65726E61 
+ 389      6C20466C 
+ 389      61736820 
+ 389      20202F30 
+ 390 0033 3036344B 		.ascii	"064Kg,07*128Kg\000"
+ 390      672C3037 
+ 390      2A313238 
+ 390      4B6700
+ 391              		.text
+ 392              	.Letext0:
+ 393              		.file 2 "c:\\program files\\gnu tools arm embedded\\4.6 2012q4\\bin\\../lib/gcc/arm-none-eabi/4.6.
+ 394              		.file 3 "./Libraries/STM32_USB_Device_Library/Class/dfu/inc/usbd_dfu_mal.h"
+ 395              		.file 4 "./Libraries/CMSIS//Include/core_cm4.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 usbd_flash_if.c
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:20     .text.FLASH_If_Read:00000000 $t
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:25     .text.FLASH_If_Read:00000000 FLASH_If_Read
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:40     .text.FLASH_If_CheckAdd:00000000 $t
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:45     .text.FLASH_If_CheckAdd:00000000 FLASH_If_CheckAdd
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:68     .text.FLASH_If_Write:00000000 $t
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:73     .text.FLASH_If_Write:00000000 FLASH_If_Write
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:150    .text.FLASH_If_Write:00000040 $d
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:155    .text.FLASH_If_DeInit:00000000 $t
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:160    .text.FLASH_If_DeInit:00000000 FLASH_If_DeInit
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:180    .text.FLASH_If_Init:00000000 $t
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:185    .text.FLASH_If_Init:00000000 FLASH_If_Init
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:205    .text.FLASH_If_Erase:00000000 $t
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:210    .text.FLASH_If_Erase:00000000 FLASH_If_Erase
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:358    .text.FLASH_If_Erase:00000088 $d
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:377    .data.DFU_Flash_cb:00000000 DFU_Flash_cb
+C:\Users\zhx\AppData\Local\Temp\ccys8m16.s:374    .data.DFU_Flash_cb:00000000 $d
+                     .debug_frame:00000010 $d
+
+UNDEFINED SYMBOLS
+FLASH_ProgramWord
+MAL_Buffer
+FLASH_Lock
+FLASH_Unlock
+FLASH_EraseSector
