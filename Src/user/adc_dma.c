@@ -1,6 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "adc_dma.h"
-
+#include "fet_driver.h"
 /** @addtogroup Utilities
  * @{
  */ 
@@ -57,17 +57,23 @@ __ALIGN_END ;
 uint16_t adcBuf[2][ADC_BUF_SIZE];
 uint32_t *pAdcBuf;
 
-volatile uint32_t next_falling_edge_2;
-volatile uint32_t next_rising_edge_2;
-volatile uint32_t next_detecting_time_2;
-
-uint8_t state_2;
+volatile uint8_t state_2;
+volatile uint8_t step_2;
 volatile uint8_t l_side_state_2;
 volatile uint8_t h_side_state_2;
 volatile uint32_t abs_base_time;
 volatile uint32_t half_zc_period;
 volatile uint32_t pulse_width;
+volatile uint8_t running_state;
+volatile uint32_t start_counter;
 
+volatile uint32_t previous_zc_time;
+volatile uint32_t current_zc_time;
+volatile uint32_t next_detect_time;
+volatile uint32_t previous_valid_A;
+volatile uint32_t previous_valid_B;
+volatile uint32_t previous_valid_C;
+volatile uint32_t previous_valid_T;
 
 
 /**
@@ -91,13 +97,16 @@ void ADC_DMA_Init()
     DMA_Config();
     ADC_Config();
 
-    next_falling_edge_2 = 0;
-    next_rising_edge_2 = 0;
-    next_detecting_time_2 = 0;
+
+    next_detect_time = 0;
     state_2 = 1;
     l_side_state_2 = 0;
     h_side_state_2 = 0;
     abs_base_time = 0;
+    running_state = 0;
+    start_counter = 0;
+    previous_valid_T = 0xFFFFFFFF;                                      
+    
     TIM3->CCR1 = 0xffff;
     TIM3->CCR2 = 0xffff;
     TIM4->CCR1 = 0xffff;
@@ -195,6 +204,7 @@ static void ADC_Config(void)
     //ADC_ITConfig(ADC2, ADC_IT_EOC, ENABLE);
 
     /* Enable ADC1, 2, 3*********************************************************/
+    ADC_VBATCmd(ENABLE);
     ADC_Cmd(ADC1, ENABLE);
     ADC_Cmd(ADC2, ENABLE);
     ADC_Cmd(ADC3, ENABLE);
@@ -258,77 +268,203 @@ void to_hex8(uint8_t *src, uint8_t *dst, uint16_t len)
 }
 
 
+
+uint8_t zc_found;
+
+#define INT32_TIME_FRAC		8
+#define UNIT_TO_TIME(x)		((uint32_t)(x) << (INT32_TIME_FRAC))
+#define TIME_TO_UNIT(x)		((uint32_t)(x) >> (INT32_TIME_FRAC))
+#define ZC_FOUND do{                                                    \
+    half_zc_period = (6 * half_zc_period + current_zc_time - previous_zc_time) >> 3; \
+    next_detect_time = abs_base_time + half_zc_period + UNIT_TO_TIME(16);                  \
+    TIM10->CCR1 = TIME_TO_UNIT(current_zc_time + half_zc_period);       \
+    previous_valid_T = 0xFFFFFFFF;                                      \
+    step_2 = state_2;                                                   \
+    state_2++;                                                      \
+if (state_2 > 6) state_2 = 1;                                   \
+if (state_2 % 2 == 0) L_ON(3, A);                               \
+else L_OFF(3, A);                                              \
+} while(0)
+
+#define TIME_LESS_THEN(x, y)	(((x) - (y)) > 0x80000000)
+    
+
+    
+void zero_crossing_detector(uint32_t A, uint32_t B, uint32_t C, uint32_t V)
+{
+
+    if(start_counter >= 500000) {
+        TIM3->CCR1 = 1;
+        TIM4->CCR1 = 1;
+        TIM3->CCR2 = 1;
+        L_OFF(2, A);
+        L_OFF(2, B);
+        L_OFF(2, C);
+        return;
+    }
+    start_counter++;    
+            
+    if (TIME_LESS_THEN(abs_base_time, next_detect_time)) return;
+    if (TIME_LESS_THEN(next_detect_time + half_zc_period * 8, abs_base_time)) {
+        previous_zc_time = current_zc_time;
+        current_zc_time = abs_base_time;                    
+        ZC_FOUND;
+        L_OFF(3, A); 
+        return;
+    }
+    switch(state_2) {
+    case 1:
+        if(A > ((V * 3) >> 2)) {
+            if((C << 1) < A) {
+                previous_zc_time = current_zc_time;
+                if (previous_valid_T != 0xFFFFFFFF) {
+                    current_zc_time = (abs_base_time - previous_valid_T) / 2 + abs_base_time;
+                } else {
+                    current_zc_time = abs_base_time;                    
+                }
+                ZC_FOUND;
+            } else {
+                previous_valid_A = A;
+                previous_valid_C = C;
+                previous_valid_T = abs_base_time;
+            }
+        }
+        break;
+    case 2:
+        if(A > ((V * 3) >> 2)) {
+            if((B << 1) > A) {
+                previous_zc_time = current_zc_time;
+                if (previous_valid_T != 0xFFFFFFFF) {
+                    current_zc_time = (abs_base_time - previous_valid_T) / 2 + abs_base_time;
+                } else {
+                    current_zc_time = abs_base_time;                    
+                }
+                ZC_FOUND;
+            } else {
+                previous_valid_A = A;
+                previous_valid_B = B;
+                previous_valid_T = abs_base_time;
+            }
+        }
+        break;
+    case 3:
+        if(B > ((V * 3) >> 2)) {
+            if((A << 1) < B) {
+                previous_zc_time = current_zc_time;
+                if (previous_valid_T != 0xFFFFFFFF) {
+                    current_zc_time = (abs_base_time - previous_valid_T) / 2 + abs_base_time;
+                } else {
+                    current_zc_time = abs_base_time;                    
+                }
+                ZC_FOUND;
+            } else {
+                previous_valid_A = A;
+                previous_valid_B = B;
+                previous_valid_T = abs_base_time;
+            }
+        }
+        break;
+    case 4:
+        if(B > ((V * 3) >> 2)) {
+            if((C << 1) > B) {
+                previous_zc_time = current_zc_time;
+                if (previous_valid_T != 0xFFFFFFFF) {
+                    current_zc_time = (abs_base_time - previous_valid_T) / 2 + abs_base_time;
+                } else {
+                    current_zc_time = abs_base_time;                    
+                }
+                ZC_FOUND;
+            } else {
+                previous_valid_B = B;
+                previous_valid_C = C;
+                previous_valid_T = abs_base_time;
+            }
+        }
+        break;
+    case 5:
+        if(C > ((V * 3) >> 2)) {
+            if((B << 1) < C) {
+                previous_zc_time = current_zc_time;
+                if (previous_valid_T != 0xFFFFFFFF) {
+                    current_zc_time = (abs_base_time - previous_valid_T) / 2 + abs_base_time;
+                } else {
+                    current_zc_time = abs_base_time;                    
+                }
+                ZC_FOUND;
+            } else {
+                previous_valid_B = B;
+                previous_valid_C = C;
+                previous_valid_T = abs_base_time;
+            }
+        }
+        break;
+    case 6:
+        if(C > ((V * 3) >> 2)) {
+            if((A << 1) > C) {
+                previous_zc_time = current_zc_time;
+                if (previous_valid_T != 0xFFFFFFFF) {
+                    current_zc_time = (abs_base_time - previous_valid_T) / 2 + abs_base_time;
+                } else {
+                    current_zc_time = abs_base_time;                    
+                }
+                ZC_FOUND;
+            } else {
+                previous_valid_A = A;
+                previous_valid_C = C;
+                previous_valid_T = abs_base_time;
+            }
+        }
+        break;
+    }
+}
+
 void DMA2_Stream0_IRQHandler() 
 {
-    /* to_hex8((uint8_t *)(&(ADC1->SR)), buf, 1); */
-    /* buf[3] = ' '; */
-    /* VCP_DataTx((uint8_t *)buf, 3); */
-    /* to_hex8((uint8_t *)(&(ADC2->SR)), buf, 1); */
-    /* buf[3] = ' '; */
-    /* VCP_DataTx((uint8_t *)buf, 3); */
-    /* to_hex8((uint8_t *)(&(ADC3->SR)), buf, 1); */
-    /* buf[3] = ' '; */
-    /* VCP_DataTx((uint8_t *)buf, 3); */
-    /* /\* to_hex8((uint8_t)ADC1->SR, buf, 4); *\/ */
-    /* /\* buf[8] = ' '; *\/ */
-    /* /\* VCP_DataTx((uint8_t *)buf, 9); *\/ */
-    /* /\* to_hex8((uint8_t)ADC1->SR, buf, 4); *\/ */
-    /* /\* buf[8] = ' '; *\/ */
-    /* /\* VCP_DataTx((uint8_t *)buf, 9); *\/ */
-    /* buf[0] = '\r'; */
-    /* buf[1] = '\n'; */
-    /* VCP_DataTx((uint8_t *)buf, 2); */
-    static uint32_t i;
-    i++;
-    half_zc_period = 1000;
-    pulse_width = 200;
-    abs_base_time += 8;         /* unit is 3/4us, 6us is 8 */
-    /* if (DMA_GetITStatus(DMA2_Stream0, DMA_IT_TCIF0) != RESET) { */
-    /*     DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_TCIF0); */
-    if (next_detecting_time_2 <= abs_base_time) {
-        switch(state_2) {
-        case 1:
-            l_side_state_2 = 2;
-            break;
-        case 2:
-            l_side_state_2 = 2;            
-            TIM4->CCMR1 = TIM4->CCMR1 & 0xFF8F | 0x0010;
-            TIM3->CCR1 = next_falling_edge_2;
-            h_side_state_2 = 3;
-            break;
-        case 3:
-            l_side_state_2 = 0;
-            break;
-        case 4:
-            l_side_state_2 = 0;            
-            TIM3->CCMR1 = TIM3->CCMR1 & 0x8FFF | 0x1000;            
-            TIM4->CCR1 = next_falling_edge_2;
-            h_side_state_2 = 3;
-            break;
-        case 5:
-            l_side_state_2 = 1;
-            break;
-        case 6:
-            l_side_state_2 = 1;
-            TIM3->CCMR1 = TIM3->CCMR1 & 0xFF8F | 0x0010;
-            TIM3->CCR2 = next_falling_edge_2;
-            h_side_state_2 = 3;
-            break;
-        }
-        state_2++;
-        if (state_2 > 6) state_2 = 1;
-
-        next_detecting_time_2 = abs_base_time + half_zc_period * 2;
-        next_rising_edge_2 = abs_base_time + half_zc_period * 2 - pulse_width;
-        next_falling_edge_2 = abs_base_time + half_zc_period * 2 + pulse_width;
-        TIM10->CCR1 = abs_base_time + half_zc_period;
-    }
+    uint16_t* pBuf;
 
 #define RESERVED_MASK (uint32_t)0x0F7D0F7D
     if (DMA2->LISR & RESERVED_MASK & DMA_IT_TCIF0) {
         DMA2->LIFCR = (uint32_t) ( RESERVED_MASK & DMA_IT_TCIF0);
+
+        if(running_state == 0) {
+            half_zc_period = UNIT_TO_TIME(2000);
+            pulse_width = 600;
+            abs_base_time += UNIT_TO_TIME(8);         /* unit is 3/4us, 6us is 8 */
+            /* if (DMA_GetITStatus(DMA2_Stream0, DMA_IT_TCIF0) != RESET) { */
+            /*     DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_TCIF0); */
+            TIM3->CCR1 = pulse_width;
+            TIM4->CCR1 = pulse_width;
+            TIM3->CCR2 = pulse_width;
+
+    
+            if (TIME_LESS_THEN(next_detect_time, abs_base_time)) {
+                step_2 = state_2;
+                state_2++;
+                if (state_2 > 6) {
+                    state_2 = 1;
+                    start_counter++;
+                }
+                if (start_counter > 4) {
+                    running_state = 1;
+                    start_counter = 0;
+                    half_zc_period = UNIT_TO_TIME(2000);
+                }
+                previous_zc_time = current_zc_time;
+                current_zc_time = abs_base_time;
+                next_detect_time = abs_base_time + half_zc_period * 2;
+                TIM10->CCR1 = TIME_TO_UNIT(abs_base_time + half_zc_period);
+            }
+            
+        } else {
+            pBuf = adcBuf[!DMA_GetCurrentMemoryTarget(DMA2_Stream0)];
+            abs_base_time += UNIT_TO_TIME(4);         /* unit is 3/4us, 3us is 4 */
+            zero_crossing_detector(pBuf[9], pBuf[11], pBuf[10], pBuf[12] << 1);
+            abs_base_time += UNIT_TO_TIME(4);         /* unit is 3/4us, 3us is 4 */
+            zero_crossing_detector(pBuf[9 + 18], pBuf[11 + 18], pBuf[10 + 18], pBuf[12 + 18] << 1);
+        }
+        
         /* if (i % 1000000 == 0) { */
-        /*     to_hex8((uint8_t *)(adcBuf[!DMA_GetCurrentMemoryTarget(DMA2_Stream0)]), buf, 72); */
+        /*     to_hex8((uint8_t *)(adcBuf
         /*     VCP_DataTx((uint8_t *)buf, 144); */
         /*     buf[0] = '\r'; */
         /*     buf[1] = '\n'; */
@@ -339,9 +475,9 @@ void DMA2_Stream0_IRQHandler()
         /*     pAdcBuf = adcBuf; */
         /* } */
     }
-
-
 }
+
+
 
 /**
   * @}

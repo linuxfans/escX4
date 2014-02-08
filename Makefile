@@ -399,7 +399,8 @@ CFLAGS += -mcpu=$(MCU) $(THUMB_IW)
 CFLAGS += $(CDEFS)
 CFLAGS += $(patsubst %,-I%,$(EXTRAINCDIRS)) -I.
 
-CFLAGS += -save-temps
+#CFLAGS += -save-temps
+
 # when using ".ramfunc"s without attribute longcall:
 #CFLAGS += -mlong-calls
 # -mapcs-frame is important if gcc's interrupt attributes are used
