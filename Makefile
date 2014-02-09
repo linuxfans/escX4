@@ -208,7 +208,7 @@ CPPSRCARM =
 # Even though the DOS/Win* filesystem matches both .s and .S the same,
 # it will preserve the spelling of the filenames, and gcc itself does
 # care about how the name is spelled on its command-line.
-ASRC = $(APPUSRDIR)/startup_stm32f4xx.S
+ASRC = $(APPUSRDIR)/startup_stm32f4xx.s
 #ASRC = ./startup_stm32f4xx.S
 #ASRC += $(FREERTOSDIR)/portable/Tasking/ARM_CM4F/port_asm.asm
 
@@ -296,7 +296,8 @@ DEBUG = gdb
 CSTANDARD = -std=gnu99
 
 # Flash programming tool
-FLASH_TOOL = OPENOCD
+FLASH_TOOL = DFU_UTIL
+#FLASH_TOOL = OPENOCD
 #FLASH_TOOL = LPC21ISP
 
 # Some warnings can be disabled by this setting 
@@ -306,64 +307,11 @@ FLASH_TOOL = OPENOCD
 #DISABLESPECIALWARNINGS = yes
 DISABLESPECIALWARNINGS = no
 
-
-# ---------------------------------------------------------------------------
-# Options for lpc21isp by Martin Maurer 
-# lpc21isp only supports NXP LPC and Analog ADuC ARMs though the 
-# integrated uart-bootloader (ISP)
-#
-# Settings and variables:
-LPC21ISP = lpc21isp
-LPC21ISP_FLASHFILE = $(OUTDIR)/$(TARGET).hex
-LPC21ISP_PORT = com1
-LPC21ISP_BAUD = 57600
-LPC21ISP_XTAL = 12000
-# other options:
-# -debug: verbose output
-# -control: enter bootloader via RS232 DTR/RTS (only if hardware 
-#           supports this feature - see NXP AppNote)
-LPC21ISP_OPTIONS = -control
-#LPC21ISP_OPTIONS += -debug
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# Options for OpenOCD flash-programming
-# see openocd.pdf/openocd.texi for further information
-#
-OOCD_LOADFILE+=$(OUTDIR)/$(TARGET).elf
-# if OpenOCD is in the $PATH just set OPENOCDEXE=openocd
-OOCD_EXE="d:/Ñ¸À×ÏÂÔØ/openocd-0.6.1/bin/openocd-0.6.1.exe"
-
-# debug level
-OOCD_CL=-d0
-#OOCD_CL=-d3
-# interface and board/target settings (using the OOCD target-library here)
-OOCD_CL+=-f board/stm32f4discovery.cfg
-# initialize
-OOCD_CL+=-c init
-# if no SRST available:
-## why unknown - it's documented... OOCD_CL+=-c "cortex_m3 reset_config sysresetreq"
-# commands to prepare flash-write
-OOCD_CL+= -c "reset halt"
-# show the targets
-OOCD_CL+=-c targets
-# increase JTAG frequency a little bit - can be disabled for tests
-OOCD_CL+= -c "adapter_khz 1000"
-# disable polling (optional)
-OOCD_CL+= -c "poll off"
-# flash-write and -verify
-OOCD_CL+=-c "flash write_image erase $(OOCD_LOADFILE)" -c "verify_image $(OOCD_LOADFILE)"
-# AIRCR SYSRESETREQ - workaround since sometimes the controller does not start after reset run
-# but seems to "hang" in an NMI - should be removed once cortex_m3 reset_config works
-OOCD_CL+=-c"mww 0xE000ED0C 0x05fa0004" -c "sleep 200"
-# reset target
-OOCD_CL+=-c init
-OOCD_CL+=-c "reset run"
-# show the targets
-OOCD_CL+=-c targets
-# terminate OOCD after programming
-OOCD_CL+=-c shutdown
-# ---------------------------------------------------------------------------
+DFU_UTIL_EXE="dfu-util"
+DFU_UTIL_CL=-D $(OUTDIR)/$(TARGET).bin
+DFU_UTIL_CL+=-a 0
+DFU_UTIL_CL+=-s 0x0800C000
+DFU_UTIL_CL+=-R
 
 
 ifdef VECTOR_TABLE_LOCATION
@@ -576,7 +524,11 @@ gccversion :
 debug:
 	arm-none-eabi-gdb FLASH_RUN/project.elf
 # Program the device.
-ifeq ($(FLASH_TOOL),OPENOCD)
+ifeq ($(FLASH_TOOL),DFU_UTIL)
+program: $(OUTDIR)/$(TARGET).bin
+	@echo "Programming with dfu-util"
+	$(DFU_UTIL_EXE) $(DFU_UTIL_CL)
+else ifeq ($(FLASH_TOOL),OPENOCD)
 # Program the device with Dominic Rath's OPENOCD in "batch-mode"
 program: $(OUTDIR)/$(TARGET).elf
 	@echo "Programming with OPENOCD"
@@ -600,7 +552,7 @@ endif
 # Create final output file in raw binary format from ELF output file (.bin)
 %.bin: %.elf
 	@echo $(MSG_LOAD_FILE) $@
-	$(OBJCOPY) -O binary $< $@
+	$(OBJCOPY) -I elf32-littlearm -O binary $< $@
 
 # Create extended listing file/disassambly from ELF output file.
 # using objdump (testing: option -C)
