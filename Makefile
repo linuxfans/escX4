@@ -477,14 +477,14 @@ LSTFILES   = $(addprefix $(OUTDIR)/, $(addsuffix .lst, $(ALLSRCBASE)))
 # Define all depedency-files (used for make clean).
 DEPFILES   = $(addprefix $(OUTDIR)/dep/, $(addsuffix .o.d, $(ALLSRCBASE)))
 
+# Default target.
+all: begin createdirs gccversion build sizeafter end
+
 elf: $(OUTDIR)/$(TARGET).elf
 lss: $(OUTDIR)/$(TARGET).lss 
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
-
-# Default target.
-all: begin createdirs gccversion build sizeafter end
 
 # Target for the build-sequence.
 build: elf lss sym hex bin
