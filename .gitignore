@@ -5,3 +5,6 @@
 *.*~
 *.elf
 *~
+#*#
+cscope.*
+FLASH_RUN/*/

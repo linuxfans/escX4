@@ -477,14 +477,14 @@ LSTFILES   = $(addprefix $(OUTDIR)/, $(addsuffix .lst, $(ALLSRCBASE)))
 # Define all depedency-files (used for make clean).
 DEPFILES   = $(addprefix $(OUTDIR)/dep/, $(addsuffix .o.d, $(ALLSRCBASE)))
 
+# Default target.
+all: begin createdirs gccversion build sizeafter end
+
 elf: $(OUTDIR)/$(TARGET).elf
 lss: $(OUTDIR)/$(TARGET).lss 
 sym: $(OUTDIR)/$(TARGET).sym
 hex: $(OUTDIR)/$(TARGET).hex
 bin: $(OUTDIR)/$(TARGET).bin
-
-# Default target.
-all: begin createdirs gccversion build sizeafter end
 
 # Target for the build-sequence.
 build: elf lss sym hex bin
@@ -660,8 +660,8 @@ clean_list :
 	$(REMOVE) $(CPPSRCARM:.cpp=.s)
 
 # Include the dependency files.
-##-include $(wildcard dep/*)
--include $(wildcard *.d)
+-include $(wildcard FLASH_RUN/dep/*)
+-include $(wildcard dep/*.d)
 
 # Listing of phony targets.
 .PHONY : all begin end sizebefore sizeafter gccversion build elf hex bin lss sym clean clean_list program createdirs
