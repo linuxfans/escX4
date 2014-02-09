@@ -65,8 +65,10 @@ extern uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len);
 int main(void)
 {
     uint8_t buf[10] = "abcdefg";
+    NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0xC000);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
+      
     FET_Driver_Init();
     
     
