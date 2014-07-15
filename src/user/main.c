@@ -32,6 +32,8 @@
 #include "usbd_desc.h"
 #include "usbd_cdc_core.h"
 #include "fet_driver.h"
+#include "motor.h"
+#include "adc_dma.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,24 +66,19 @@ extern uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len);
 
 int main(void)
 {
-    uint8_t buf[10] = "abcdefg";
     NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0xC000);
     NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 
-      
-    FET_Driver_Init();
-    
-    
-    // high side N-FET is inactive low
-    /* FET_A_H_OFF; */
-    /* FET_B_H_OFF; */
-    /* FET_C_H_OFF; */
-  
+    USBD_Init(&USB_OTG_dev,
+              USB_OTG_FS_CORE_ID,
+              &USR_desc,
+              &USBD_CDC_cb,
+              &USR_cb);
+    shellInit();
 
-    // low side N-FET is inactive low
-    /* FET_A_L_OFF; */
-    /* FET_B_L_OFF; */
-    /* FET_C_L_OFF; */
+    FET_Driver_Init();
+    motor_init();
+    
     L_ALL_OFF(1);
     L_ALL_OFF(2);
     L_ALL_OFF(3);
@@ -99,29 +96,15 @@ int main(void)
     /*           &DFU_cb,  */
     /*           &USR_cb); */
     //test();
-    USBD_Init(&USB_OTG_dev,
-              USB_OTG_FS_CORE_ID,
-              &USR_desc,
-              &USBD_CDC_cb,
-              &USR_cb);
 
+    
     ADC_DMA_Init();
-
-
     for (;;) {
         /* Test on DMA1 channel1 transfer complete flag */
         while(!DMA_GetFlagStatus(DMA2_Stream0, DMA_FLAG_TCIF0));
         /* Clear DMA1 channel1 transfer complete flag */
         DMA_ClearFlag(DMA2_Stream0, DMA_FLAG_TCIF0);
-
-//        VCP_DataTx(buf, 4);
     }
-  
-
-          
-  
-//  test();
-  
 }
 
 void uDelay(const uint32_t usec) 
@@ -157,9 +140,10 @@ void fetBeep(const uint32_t freq, const uint32_t msec)
 
 }
 
-uint32_t play(const uint32_t buf[], const uint32_t len) 
+void play(const uint32_t buf[], const uint32_t len) 
 {
-    for (int i = 0; i < len; i++) {
+    uint32_t i;
+    for (i = 0; i < len; i++) {
         fetBeep(freq_tab[buf[i]], 500);
         mDelay(10);
     }

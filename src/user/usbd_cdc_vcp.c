@@ -38,17 +38,6 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-LINE_CODING linecoding =
-  {
-    115200, /* baud rate*/
-    0x00,   /* stop bits-1*/
-    0x00,   /* parity - none*/
-    0x08    /* nb. of bits 8*/
-  };
-
-
-USART_InitTypeDef USART_InitStructure;
-
 /* These are external variables imported from CDC core to be used for IN 
    transfer management. */
 extern uint8_t  APP_Rx_Buffer []; /* Write CDC received data in this buffer.
@@ -64,8 +53,6 @@ static uint16_t VCP_DeInit   (void);
 static uint16_t VCP_Ctrl     (uint32_t Cmd, uint8_t* Buf, uint32_t Len);
 uint16_t VCP_DataTx   (uint8_t* Buf, uint32_t Len);
 static uint16_t VCP_DataRx   (uint8_t* Buf, uint32_t Len);
-
-static uint16_t VCP_COMConfig(uint8_t Conf);
 
 CDC_IF_Prop_TypeDef VCP_fops = 
 {
@@ -153,26 +140,17 @@ uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len)
   * @param  Len: Number of data received (in bytes)
   * @retval Result of the opeartion: USBD_OK if all operations are OK else VCP_FAIL
   */
+extern void shellReadChar(uint8_t ch);
+
 static uint16_t VCP_DataRx (uint8_t* Buf, uint32_t Len)
 {
   uint32_t i;
   
   for (i = 0; i < Len; i++)
   {
+      shellReadChar(Buf[i]);
   } 
  
-  return USBD_OK;
-}
-
-/**
-  * @brief  VCP_COMConfig
-  *         Configure the COM Port with default values or values received from host.
-  * @param  Conf: can be DEFAULT_CONFIG to set the default configuration or OTHER_CONFIG
-  *         to set a configuration received from the host.
-  * @retval None.
-  */
-static uint16_t VCP_COMConfig(uint8_t Conf)
-{
   return USBD_OK;
 }
 

@@ -1,10 +1,6 @@
 #ifndef __FET_DRIVER_H
 #define __FET_DRIVER_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "global_includes.h"
@@ -117,48 +113,21 @@
 #define M4_C_H_AF		GPIO_AF_TIM1
 
 
-#define M2_A_PWM_CTRL_0	((uint32_t *)(0x42000000 + (0x20400 << 5) + (4 << 3)))
-#define M2_A_PWM_CTRL_1	((uint32_t *)(0x42000000 + (0x20400 << 5) + (4 << 3) + 4))
-#define M2_B_PWM_CTRL_0	((uint32_t *)(0x42000000 + (0x20400 << 5) + (6 << 3)))
-#define M2_B_PWM_CTRL_1	((uint32_t *)(0x42000000 + (0x20400 << 5) + (6 << 3) + 4))
-#define M2_C_PWM_CTRL_0	((uint32_t *)(0x42000000 + (0x20400 << 5) + (5 << 3)))
-#define M2_C_PWM_CTRL_1	((uint32_t *)(0x42000000 + (0x20400 << 5) + (5 << 3) + 4))
+// #define M2_A_PWM_CTRL_0	((uint32_t *)(0x42000000 + (0x20400 << 5) + (4 << 3)))
+// #define M2_A_PWM_CTRL_1	((uint32_t *)(0x42000000 + (0x20400 << 5) + (4 << 3) + 4))
+// #define M2_B_PWM_CTRL_0	((uint32_t *)(0x42000000 + (0x20400 << 5) + (6 << 3)))
+// #define M2_B_PWM_CTRL_1	((uint32_t *)(0x42000000 + (0x20400 << 5) + (6 << 3) + 4))
+// #define M2_C_PWM_CTRL_0	((uint32_t *)(0x42000000 + (0x20400 << 5) + (5 << 3)))
+// #define M2_C_PWM_CTRL_1	((uint32_t *)(0x42000000 + (0x20400 << 5) + (5 << 3) + 4))
 
-#define M2_A_H_ON_REG	((uint32_t *)(0x42000000 + (0x20C18 << 5) + (2 << 2)))
+// #define M2_A_L_ON	((uint32_t *)(0x42000000 + (0x20C18 << 5) + (2 << 2)))
+// #define M2_B_L_ON	((uint32_t *)(0x42000000 + (0x20818 << 5) + (11 << 2)))
+// #define M2_C_L_ON	((uint32_t *)(0x42000000 + (0x20818 << 5) + (12 << 2)))
 
-#define M2_A_L_ON	((uint32_t *)(0x42000000 + (0x20C18 << 5) + (2 << 2)))
-#define M2_B_L_ON	((uint32_t *)(0x42000000 + (0x20818 << 5) + (11 << 2)))
-#define M2_C_L_ON	((uint32_t *)(0x42000000 + (0x20818 << 5) + (12 << 2)))
+// #define M2_A_L_OFF	((uint32_t *)(0x42000000 + (0x20C1A << 5) + (2 << 2)))
+// #define M2_B_L_OFF	((uint32_t *)(0x42000000 + (0x2081A << 5) + (11 << 2)))
+// #define M2_C_L_OFF	((uint32_t *)(0x42000000 + (0x2081A << 5) + (12 << 2)))
 
-#define M2_A_L_OFF	((uint32_t *)(0x42000000 + (0x20C1A << 5) + (2 << 2)))
-#define M2_B_L_OFF	((uint32_t *)(0x42000000 + (0x2081A << 5) + (11 << 2)))
-#define M2_C_L_OFF	((uint32_t *)(0x42000000 + (0x2081A << 5) + (12 << 2)))
-
-
-
-#define M2_A_PWM_OFF do {                       \
-         M2_A_PWM_CTRL_0 = 1;                   \
-         M2_A_PWM_CTRL_1 = 0;                   \
-     } while(0)
-#define M2_A_PWM_ON do {                        \
-         M2_A_PWM_CTRL_0 = 1;                   \
-         M2_A_PWM_CTRL_1 = 0;                   \
-     } while(0)
-
-#define PWM_ON(motor, channel) do {                 \
-         *M##motor##_##channel##_PWM_CTRL_0 = 0;    \
-             *M##motor##_##channel##_PWM_CTRL_1 = 1;    \
-     } while(0)
-     
-#define PWM_OFF(motor, channel) do {                \
-         *M##motor##_##channel##_PWM_CTRL_0 = 1;     \
-             *M##motor##_##channel##_PWM_CTRL_1 = 0; \
-     } while(0)
-     
-    
-     
-     
-     
 
 
 #define L_OFF(motor, channel) do {                                      \
@@ -241,11 +210,10 @@
          FET_PIN_CONFIG(4, A, H);               \
          FET_PIN_CONFIG(4, B, H);               \
          FET_PIN_CONFIG(4, C, H);               \
-     }while(0)
+     } while(0)
 
-#ifdef __cplusplus
-}
-#endif
+void FET_Driver_Init(void);
+
 
 #endif /* __CC2540_DRIVER_H */
 /**

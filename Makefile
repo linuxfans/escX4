@@ -130,7 +130,7 @@ OUTDIR = $(RUN_MODE)
 TARGET = project
 
 # Utility variables
-APPLIBDIR      = ./Libraries
+APPLIBDIR      = $(shell pwd)/Libraries
 STMLIBDIR      = $(APPLIBDIR)
 STMSPDDIR      = $(STMLIBDIR)/STM32F4xx_StdPeriph_Driver
 STMSPDSRCDIR   = $(STMSPDDIR)/src
@@ -145,12 +145,13 @@ STMUTILDIR     = $(STMLIBDIR)/STM32F4-Discovery/
 
 # List C source files here. (C dependencies are automatically generated.)
 # use file-extension c for "c-only"-files
-APPUSRDIR	= ./src/user
+APPUSRDIR	= $(shell pwd)/src/user
 
 SRC = $(APPUSRDIR)/main.c
+SRC += $(APPUSRDIR)/motor.c
+SRC += $(APPUSRDIR)/shell.c
 SRC += $(APPUSRDIR)/stm32xxx_it.c
 SRC += $(APPUSRDIR)/system_stm32f4xx.c
-SRC += $(APPUSRDIR)/bsp.c
 SRC += $(APPUSRDIR)/usb_bsp.c
 SRC += $(APPUSRDIR)/usbd_desc.c
 SRC += $(APPUSRDIR)/usbd_usr.c

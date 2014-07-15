@@ -1,13 +1,10 @@
 #ifndef __ADC_DMA_H
 #define __ADC_DMA_H
 
-#ifdef __cplusplus
- extern "C" {
-#endif
-
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"
 #include "global_includes.h"
+#include "motor.h"
 /** @addtogroup Utilities
   * @{
   */
@@ -66,62 +63,6 @@ M4_P	ADC12_IN6
 
 */
 
-/* ADC1 V_BAT C3_S1 C2_S2 CU_S2 C1_S3 C3_S3 */
-/* ADC2 C1_S1 C1_S2 C3_S2 C2_S4 C2_S3 CU_S3 */
-/* ADC3 C2_S1 CU_S1 C1_S4 C3_S4 CU_S4       */
-
-
-
-
-
-
-#define ADC_CHANNEL_NUM 12
-uint8_t adcOrder[3][ADC_CHANNEL_NUM] = 
-{
-    {
-        ADC_Channel_11,
-        ADC_Channel_18,
-        ADC_Channel_9,
-        ADC_Channel_15,
-        ADC_Channel_18,
-        ADC_Channel_7,
-        ADC_Channel_11,
-        ADC_Channel_18,
-        ADC_Channel_9,
-        ADC_Channel_15,
-        ADC_Channel_18,
-        ADC_Channel_7
-    },
-    {
-        ADC_Channel_1,
-        ADC_Channel_5,
-        ADC_Channel_8,
-        ADC_Channel_14,
-        ADC_Channel_6,
-        ADC_Channel_4,
-        ADC_Channel_1,
-        ADC_Channel_5,
-        ADC_Channel_8,
-        ADC_Channel_14,
-        ADC_Channel_6,
-        ADC_Channel_4
-    },
-    {
-        ADC_Channel_2,
-        ADC_Channel_10,
-        ADC_Channel_3,
-        ADC_Channel_13,
-        ADC_Channel_12,
-        ADC_Channel_0,
-        ADC_Channel_2,
-        ADC_Channel_10,
-        ADC_Channel_3,
-        ADC_Channel_13,
-        ADC_Channel_12,
-        ADC_Channel_0
-    }
-};
-
 typedef struct 
 {
     GPIO_TypeDef *port;
@@ -129,63 +70,9 @@ typedef struct
 } ADC_Pin_TypeDef;
 
 #define ADC_PIN_NUM 16
-
-ADC_Pin_TypeDef adcPin[ADC_PIN_NUM] = {
-    {
-        GPIOA, GPIO_Pin_0
-    },
-    {
-        GPIOA, GPIO_Pin_1
-    },
-    {
-        GPIOA, GPIO_Pin_2
-    },
-    {
-        GPIOA, GPIO_Pin_3
-    },
-    {
-        GPIOA, GPIO_Pin_4
-    },
-    {
-        GPIOA, GPIO_Pin_5
-    },
-    {
-        GPIOA, GPIO_Pin_6
-    },
-    {
-        GPIOA, GPIO_Pin_7
-    },
-    {
-        GPIOB, GPIO_Pin_0
-    },
-    {
-        GPIOB, GPIO_Pin_1
-    },
-    {
-        GPIOC, GPIO_Pin_0
-    },
-    {
-        GPIOC, GPIO_Pin_1
-    },
-    {
-        GPIOC, GPIO_Pin_2
-    },
-    {
-        GPIOC, GPIO_Pin_3
-    },
-    {
-        GPIOC, GPIO_Pin_4
-    },
-    {
-        GPIOC, GPIO_Pin_5
-    }
-};
     
-
-
-#ifdef __cplusplus
-}
-#endif
+void ADC_DMA_Init();
+     
 
 #endif /* __CC2540_DRIVER_H */
 /**

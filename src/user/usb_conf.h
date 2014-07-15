@@ -239,7 +239,7 @@
     #endif /* __CC_ARM */  
   #endif /* __GNUC__ */ 
 #else
-  #define __ALIGN_BEGIN
+#define __ALIGN_BEGIN 
   #define __ALIGN_END   
 #endif /* USB_OTG_HS_INTERNAL_DMA_ENABLED */
 
