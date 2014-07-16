@@ -81,7 +81,7 @@ void motor_zero_cross_detect(volatile MOTOR* p, uint16_t* base, uint32_t abs_ref
             printf("comm lost %d\r\n", p->zero_cross_period);
             stimu_voltage = base[p->stimu_voltage_offset];
             sense_voltage = base[p->sense_voltage_offset];
-            power_voltage = base[p->power_voltage_offset] * 3 / 2;
+            power_voltage = base[p->power_voltage_offset] * 12; //* 3 / 2 * 8
 
         }
         goto zero_cross_found;

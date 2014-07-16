@@ -221,7 +221,6 @@ static void ADC_Config(void)
     //ADC_ITConfig(ADC2, ADC_IT_EOC, ENABLE);
 
     /* Enable ADC1, 2, 3*********************************************************/
-    ADC_VBATCmd(ENABLE);
     ADC_Cmd(ADC1, ENABLE);
     ADC_Cmd(ADC2, ENABLE);
     ADC_Cmd(ADC3, ENABLE);
@@ -261,28 +260,6 @@ static void ADC_DMA_LowLevel_Init(void)
 extern uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len);
 uint8_t buf[32];
 
-void to_hex8(uint8_t *src, uint8_t *dst, uint16_t len) 
-{
-    uint16_t i;
-    uint8_t tmp;
-    
-    for(i = 0; i < len; i++) {
-        tmp = (src[i] >> 4) & 0x0F;
-        if (tmp < 0x0a) {
-            dst[i * 2 + 0] = 0x30 + tmp;
-        } else {
-            dst[i * 2 + 0] = 'A' + tmp - 0x0a;
-        }
-        tmp = (src[i] >> 0) & 0x0F;
-        if (tmp < 0x0a) {
-            dst[i * 2 + 1] = 0x30 + tmp;
-        } else {
-            dst[i * 2 + 1] = 'A' + tmp - 0x0a;
-        }
-    }
-}
-
-
 void DMA2_Stream0_IRQHandler() 
 {
     uint16_t* pBuf;
@@ -294,20 +271,20 @@ void DMA2_Stream0_IRQHandler()
         DMA2->LIFCR = (uint32_t) ( RESERVED_MASK & DMA_IT_TCIF0);
         pBuf = adcBuf[(DMA2_Stream0->CR & DMA_SxCR_CT) == 0];
 
-        j++;
-        if ((j % (4096 * 4)) == 1) {
-            for (i = 0; i < 18; i++) {
-                printf("%lu\t", pBuf[i]);
-            }
-            pBuf += 18;
-            for (i = 0; i < 18; i++) {
-                printf("%lu\t", pBuf[i]);
-            }
-            printf("\r\n");
-        }
+        /* j++; */
+        /* if ((j % (4096 * 4)) == 1) { */
+        /*     for (i = 0; i < 18; i++) { */
+        /*         printf("%lu\t", pBuf[i]); */
+        /*     } */
+        /*     pBuf += 18; */
+        /*     for (i = 0; i < 18; i++) { */
+        /*         printf("%lu\t", pBuf[i]); */
+        /*     } */
+        /*     printf("\r\n"); */
+        /* } */
 
         
-#if 0
+#if 1
 //        pBuf = adcBuf[!DMA_GetCurrentMemoryTarget(DMA2_Stream0)];
         motor_zero_cross_detect(&(motor[M1_IDX]), pBuf, abs_base_time);
         abs_base_time += TICKS_TO_UNIT(4);
