@@ -77,22 +77,7 @@ ADC_Pin_TypeDef adcPin[ADC_PIN_NUM] = {
     {GPIOC, GPIO_Pin_5}
 };
     
-
-/* volatile uint8_t state_2; */
-/* volatile uint8_t step_2; */
- volatile uint32_t abs_base_time; 
-/* volatile uint32_t half_zc_period; */
-/* volatile uint32_t pulse_width; */
-/* volatile uint8_t running_state; */
-/* volatile uint32_t start_counter; */
-
-/* volatile uint32_t previous_zc_time; */
-/* volatile uint32_t current_zc_time; */
-/* volatile uint32_t next_detect_time; */
-/* volatile uint32_t previous_valid_A; */
-/* volatile uint32_t previous_valid_B; */
-/* volatile uint32_t previous_valid_C; */
-/* volatile uint32_t previous_valid_T; */
+volatile uint32_t abs_base_time; 
 
 
 /**
@@ -143,7 +128,7 @@ static void DMA_Config()
     /* Enable the ADC gloabal Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = DMA2_Stream0_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
@@ -259,6 +244,7 @@ static void ADC_DMA_LowLevel_Init(void)
 }
 extern uint16_t VCP_DataTx (uint8_t* Buf, uint32_t Len);
 uint8_t buf[32];
+//extern inline void motor_zero_cross_detect(MOTOR* p, uint16_t* base, uint32_t abs_ref_time);
 
 void DMA2_Stream0_IRQHandler() 
 {

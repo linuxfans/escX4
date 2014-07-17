@@ -55,12 +55,27 @@ void cmdFuncPwm(char *param)
     *(p->phase_c_pwm) = i;
 }
 
+const uint8_t infoZCP[] = "Start\r\n";
+extern volatile uint32_t zcp;
+void cmdFuncZCP(char *param) 
+{
+//    printf("Hello, I'm help function %s\r\n", ":)");
+    int i;
+    MOTOR* p;
+    p = &(motor[M2_IDX]);
+    
+    sscanf(param, "%d", &i);
+    zcp = i;
+    
+}
+
     
 const shellCmd_t shellCmdTable[] = 
 {
     DEFINE_CMD(Help),
     DEFINE_CMD(Start),
     DEFINE_CMD(Pwm),
+    DEFINE_CMD(ZCP),
 };
     
 

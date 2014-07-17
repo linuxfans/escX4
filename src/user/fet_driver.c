@@ -2,9 +2,6 @@
 #include "motor.h"
 static void FET_Driver_LowLevel_Init(void);
 
-
-extern volatile uint8_t step_2;
-
 void FET_Driver_Init(void)
 {
     FET_Driver_LowLevel_Init();
@@ -59,7 +56,7 @@ void FET_Driver_LowLevel_Init(void)
     /* Enable the TIM10 gloabal Interrupt */
     NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_TIM10_IRQn;
     NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
@@ -99,14 +96,5 @@ void FET_Driver_LowLevel_Init(void)
     TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Disable);
     TIM_OC1Init(TIM10, &TIM_OCInitStructure);
     TIM_OC1PreloadConfig(TIM10 , TIM_OCPreload_Disable);
-
-
 }
-
-
-
-
-
-
-
 
