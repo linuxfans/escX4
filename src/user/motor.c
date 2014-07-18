@@ -76,8 +76,8 @@ void motor_zero_cross_detect(MOTOR* p, uint16_t* base, uint32_t abs_ref_time)
             p->phase = 0;
             commutate(p);
             TIM10->DIER &= ~TIM_IT_CC1;
-//            printf("comm lost %d, valid_time %d, total lost %d\r\n", p->zero_cross_period, p->prev_valid_time, p->comm_lost_total_counter);
-            printf("comm lost %d\r\n", p->zero_cross_period);
+            printf("comm lost %d, valid_time %d, total lost %d\r\n", p->zero_cross_period, p->prev_valid_time, p->comm_lost_total_counter);
+//            printf("comm lost %d\r\n", p->zero_cross_period);
             return;
         }
         goto zero_cross_found;
@@ -122,7 +122,6 @@ zero_cross_found:
     p->phase++;
     if (p->phase > 6) {
         p->phase = 1;
-//        p->bemf_rising = 0;
     }
     p->prev_valid_time = 0xFFFFFFFF;
     p->stimu_voltage_offset = p->stimu_voltage_offset_table[p->phase];
@@ -130,7 +129,7 @@ zero_cross_found:
     p->debug_counter++;
 
     if (p->debug_counter > p->debug_counter_max) {
-//         printf("finished %d, valid_time %d\r\n", p->zero_cross_period, p->prev_valid_time);
+        printf("finished %d, valid_time %d\r\n", p->zero_cross_period, p->prev_valid_time);
 //        printf("finished %d\r\n", p->zero_cross_period);
         p->comm_lost_temp_counter = 0;
         p->state = STATE_SELF_TEST;

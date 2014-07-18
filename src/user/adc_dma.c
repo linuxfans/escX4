@@ -249,29 +249,15 @@ uint8_t buf[32];
 void DMA2_Stream0_IRQHandler() 
 {
     uint16_t* pBuf;
-    int i;
-    static int j;
+    uint16_t cnt_tm = TIM10->CNT;
+    uint16_t abs_tm;
+    
     
 #define RESERVED_MASK (uint32_t)0x0F7D0F7D
     if (DMA2->LISR & RESERVED_MASK & DMA_IT_TCIF0) {
         DMA2->LIFCR = (uint32_t) ( RESERVED_MASK & DMA_IT_TCIF0);
         pBuf = adcBuf[(DMA2_Stream0->CR & DMA_SxCR_CT) == 0];
 
-        /* j++; */
-        /* if ((j % (4096 * 4)) == 1) { */
-        /*     for (i = 0; i < 18; i++) { */
-        /*         printf("%lu\t", pBuf[i]); */
-        /*     } */
-        /*     pBuf += 18; */
-        /*     for (i = 0; i < 18; i++) { */
-        /*         printf("%lu\t", pBuf[i]); */
-        /*     } */
-        /*     printf("\r\n"); */
-        /* } */
-
-        
-#if 1
-//        pBuf = adcBuf[!DMA_GetCurrentMemoryTarget(DMA2_Stream0)];
         motor_zero_cross_detect(&(motor[M1_IDX]), pBuf, abs_base_time);
         abs_base_time += TICKS_TO_UNIT(4);
         motor_zero_cross_detect(&(motor[M3_IDX]), pBuf, abs_base_time);
@@ -289,7 +275,12 @@ void DMA2_Stream0_IRQHandler()
         abs_base_time += TICKS_TO_UNIT(4);
         motor_zero_cross_detect(&(motor[M4_IDX]), pBuf, abs_base_time);
         abs_base_time += TICKS_TO_UNIT(2);
-#endif
+
+        /* Re-sync in case the adc dma interrupt is not handled in time */
+        abs_tm = UNIT_TO_TICKS(abs_base_time);
+        if (cnt_tm - abs_tm > 24) {
+            abs_base_time += TICKS_TO_UNIT(cnt_tm - abs_tm);
+        }
     }
 }
 
