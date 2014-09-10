@@ -42,6 +42,7 @@ typedef struct motor
 
     uint32_t start_counter;
     uint32_t start_round_num;
+    uint32_t start_comm_period;
     uint32_t pwm_on_duty;
     uint32_t zero_cross_period;
     uint32_t next_detect_time;

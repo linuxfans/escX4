@@ -31,13 +31,24 @@ void cmdFuncHelp(char *param)
 }
 
 const uint8_t infoStart[] = "Start\r\n";
+const uint8_t infoPwm[] = "PWM\r\n";
+const uint8_t infoTime[] = "Time\r\n";
+const uint8_t infoZCP[] = "ZCP\r\n";
 
 void cmdFuncStart(char *param) 
 {
 //    printf("Hello, I'm help function %s\r\n", ":)");
     motor_start(&(motor[M2_IDX]));
 }
-const uint8_t infoPwm[] = "Start\r\n";
+
+void cmdFuncTime(char *param) 
+{
+    int i;
+    MOTOR* p;
+    p = &(motor[M2_IDX]);
+    sscanf(param, "%d", &i);
+    p->debug_counter_max = i * 10000;
+}
 
 void cmdFuncPwm(char *param) 
 {
@@ -55,7 +66,6 @@ void cmdFuncPwm(char *param)
     *(p->phase_c_pwm) = i;
 }
 
-const uint8_t infoZCP[] = "Start\r\n";
 extern volatile uint32_t zcp;
 void cmdFuncZCP(char *param) 
 {
@@ -75,6 +85,7 @@ const shellCmd_t shellCmdTable[] =
     DEFINE_CMD(Help),
     DEFINE_CMD(Start),
     DEFINE_CMD(Pwm),
+    DEFINE_CMD(Time),
     DEFINE_CMD(ZCP),
 };
     

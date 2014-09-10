@@ -13,14 +13,16 @@ void motor_start(MOTOR *p)
     p->state = STATE_START;
     p->phase = 1;
     p->start_counter = 0;
-    *(p->phase_a_pwm) = 600;
-    *(p->phase_b_pwm) = 600;
-    *(p->phase_c_pwm) = 600;
+    *(p->phase_a_pwm) = 800;
+    *(p->phase_b_pwm) = 800;
+    *(p->phase_c_pwm) = 800;
+    p->start_comm_period =  US_TO_TICKS(10000);
     commutate(p);
 //    TIM_ITConfig(TIM10, TIM_IT_CC1, ENABLE);
     TIM10->DIER |= TIM_IT_CC1;
-    *(p->commutate_timer) = *(p->commutate_counter) + US_TO_TICKS(3000);    
+    *(p->commutate_timer) = *(p->commutate_counter) + p->start_comm_period;
     p->prev_comm_ticks = *(p->commutate_timer);
+    p->start_comm_period = ((p->start_comm_period * 15) >> 4);
 }
 
 extern volatile uint32_t abs_base_time;
@@ -30,8 +32,9 @@ void motor_start_procedure(MOTOR* p)
 {
     uint32_t tmp_time = abs_base_time;
     if (p->state == STATE_START) {
-        *(p->commutate_timer) = p->prev_comm_ticks + US_TO_TICKS(3000);
+        *(p->commutate_timer) = p->prev_comm_ticks + p->start_comm_period;
         p->prev_comm_ticks = *(p->commutate_timer);
+        p->start_comm_period = ((p->start_comm_period * 15) >> 4);
         p->start_counter++;
         p->phase++;
         if (p->phase > 6) {
@@ -114,8 +117,8 @@ zero_cross_found:
     p->zero_cross_period = (7 * p->zero_cross_period + curr_zero_cross_time - p->prev_zero_cross_time) >> 3;
 
     p->prev_zero_cross_time = curr_zero_cross_time;
-    p->next_detect_time = curr_zero_cross_time + (p->zero_cross_period >> 3) * 5 + US_TO_UNIT(10);
-    p->detect_lost_time = p->next_detect_time + p->zero_cross_period + US_TO_UNIT(10);
+    p->next_detect_time = curr_zero_cross_time + (p->zero_cross_period >> 3) * 5;
+    p->detect_lost_time = p->next_detect_time + p->zero_cross_period;
     *(p->commutate_timer) = UNIT_TO_TICKS(curr_zero_cross_time + (p->zero_cross_period >> 1));
 
     p->bemf_rising = !(p->bemf_rising);

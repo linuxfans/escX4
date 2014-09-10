@@ -17,7 +17,7 @@ const MOTOR motor_default[MOTOR_NUM] = {
         .state = STATE_SELF_TEST,
         .phase = 0,
         .start_counter = 0,
-        .start_round_num = 4,
+        .start_round_num = 3,
         .pwm_on_duty = 1000,
         .zero_cross_period = US_TO_UNIT(100),
         
@@ -31,7 +31,7 @@ const MOTOR motor_default[MOTOR_NUM] = {
         .phase_a_pwm = &(M2_A_PWM_TIMER),
         .phase_b_pwm = &(M2_B_PWM_TIMER),
         .phase_c_pwm = &(M2_C_PWM_TIMER),
-        .debug_counter_max = 60000,
+        .debug_counter_max = 10000,
         .comm_lost_temp_counter = 0,
         .comm_lost_total_counter = 0,
         .low_side_table = {
